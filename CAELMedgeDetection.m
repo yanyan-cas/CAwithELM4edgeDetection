@@ -18,7 +18,7 @@ Z = horzcat(bouTempColumn,  vertcat(bouTempRow, B, bouTempRow), bouTempColumn);
 [m, n] = size(Z);
 
 % the whole neighborhood state vectors form the input data-set as:
-X = uint8(zeros((m-1) * (n-1), 9));
+X = uint8(zeros((m-2) * (n-2), 9));
 for i = 2 : m-1
     for j = 2 : n-1
         % get the neighbor cells' states
@@ -26,7 +26,7 @@ for i = 2 : m-1
                         Z(i, j-1),     Z(i, j),      Z(i, j+1); ...
                         Z(i+1, j-1), Z(i+1, j) ,  Z(i+1, j+1)];
         temp2 = reshape(temp', 9, 1); % pay attention to the reshape is column-wise arrangement!
-        X((i-2) * n + j-1, :) = temp2';
+        X((i-2) * (n-2) + j-1, :) = temp2';
     end
 end
 
@@ -54,6 +54,46 @@ end
 
 
 %% optimal transition function and edge purification
+
+% X, Y
+% to 
+
+numHiddenNode = 100;
+numInputNode = size(X, 2);
+numTrainData= size(X, 1);
+train_data = mapminmax(double(X'), -1 , 1);
+clear X;
+
+
+startTime = cputime;
+
+inputWeight = rand(numHiddenNode, numInputNode)*2 - 1;
+biasHiddenNeurons=rand(numHiddenNode,1);
+
+tempH=inputWeight * train_data;
+
+ind=ones(1,numTrainData);
+%   Extend the bias matrix BiasofHiddenNeurons to match the demention of H
+biasMatrix=biasHiddenNeurons(:,ind);            
+tempH=tempH+biasMatrix;
+
+activationFunction = 'sig';
+%%%%%%%%%%% Calculate hidden neuron output matrix H
+switch lower(activationFunction)
+    case {'sig','sigmoid'}
+        %%%%%%%% Sigmoid 
+        H = 1 ./ (1 + exp(-tempH));
+    case {'sin','sine'}
+        %%%%%%%% Sine
+        H = sin(tempH);    
+    case {'hardlim'}
+        %%%%%%%% Hard Limit
+        H = hardlim(tempH);            
+        %%%%%%%% More activation functions can be added here                
+end
+
+temp = pinv(H');
+outputWeight = temp * double(Y);
 
 
 
