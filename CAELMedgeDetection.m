@@ -4,7 +4,7 @@
 fprintf('Loading image data file\n'); 
 addpath('/Users/Yanyan/Documents/MATLAB/DATASET/SIPI_Database/aerials');
 
-image = imread('2.1.01.tiff');
+image = imread('2.1.09.tiff');
 
 imageGray = rgb2gray(image);
 
@@ -67,7 +67,7 @@ train_data = double(X');
 
 
 
-startTime = cputime;
+%startTime = cputime;
 
 inputWeight = rand(numHiddenNode, numInputNode)*2 - 1;
 biasHiddenNeurons=rand(numHiddenNode,1);
@@ -120,6 +120,7 @@ temp2 = zeros(numHiddenNode, 1);
 temp3 = zeros(numHiddenNode, 1);
 temp4 = zeros(numHiddenNode, 1);
 nextState = zeros(m * n, 1);
+edgeTemp = false(m * n, 1);
 
 I_ref = edgeImage;
 
@@ -127,7 +128,7 @@ for t = 1 : T
     if t == 1
         input = X;
     else
-        input = stateMatrixGen(reshape(nextState', m, n));
+        input = stateMatrixGen(uint8(reshape(nextState, m, n)'));
     end
 for i = 1 : m * n
     for j = 1 : numHiddenNode
@@ -139,19 +140,28 @@ for i = 1 : m * n
         nextState(i, 1) = fix(sum(temp3) / sum(temp4)) * 255;
         if nextState(i, 1) >= 255
             nextState(i, 1) = 255;
+            edgeTemp(i, 1) = 1;
         else
             nextState(i, 1) = 0;    
+            edgeTemp(i, 1) = 0;
         end
 end
 
     figure;
-    imshow(reshape(uint8(nextState), 512, 512));
-    I_edge = reshape(nextState', m, n);
+    I_edge = reshape(edgeTemp, m, n)';
+    imshow(I_edge);
+    
     I_puri = imReplace(I_edge, I_ref);
-
+    figure;
+    imshow(I_puri);
+    
 end
     
 
+for round = 1 : T
+    
+    
+end
 
 %%
 

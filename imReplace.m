@@ -1,6 +1,6 @@
 function I_purification = imReplace(I_edge, I_ref)
     [m, n] = size(I_edge);
-
+    I_purification = I_edge;
 %% inner part
 for i = 2 : m -1
 for j = 2 : n -1
@@ -151,9 +151,9 @@ for i = m
                     
         if I_edge(i, j) == 0         
                 temp2(temp1 == 0) = 0;
-                I_purification(i : i+1, j-1 : j) = temp2;                
+                I_purification(i - 1 : i,  j : j + 1) = temp2;                
             else
-                I_purification(i : i+1,  j-1 : j ) = temp2;
+                I_purification(i - 1 : i,  j : j + 1) = temp2;
         end
             
     end
